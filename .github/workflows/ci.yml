@@ -1,0 +1,58 @@
+name: Saturn Tweaks — CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOTNET_VERSION: "8.0.x"
+  SOLUTION: "SaturnTweaks.sln"
+  PROJECT_TESTS: "src/SaturnTweaks.Tests/SaturnTweaks.Tests.csproj"
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION }} --verbosity minimal
+
+      - name: Build
+        run: |
+          dotnet build ${{ env.SOLUTION }} `
+            --configuration Debug `
+            --no-restore `
+            --verbosity minimal
+
+      - name: Test
+        run: |
+          dotnet test ${{ env.PROJECT_TESTS }} `
+            --configuration Debug `
+            -p:Platform=x64 `
+            --no-build `
+            --verbosity normal `
+            --logger "trx;LogFileName=ci-results.trx" `
+            --logger "console;verbosity=detailed" `
+            --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-test-results-${{ github.run_id }}
+          path: TestResults/*.trx
+          retention-days: 7

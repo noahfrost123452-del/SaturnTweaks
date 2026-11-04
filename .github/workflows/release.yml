@@ -1,0 +1,363 @@
+name: Saturn Tweaks — Build, Test, Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"       # Trigger on version tags: v1.0.0, v1.2.3, etc.
+  workflow_dispatch:   # Allow manual trigger from the Actions tab
+    inputs:
+      version:
+        description: "Version string (e.g. 1.0.0)"
+        required: false
+        default: "1.0.0-dev"
+
+env:
+  DOTNET_VERSION: "8.0.x"
+  PROJECT_UI:    "src/SaturnTweaks.UI/SaturnTweaks.UI.csproj"
+  PROJECT_TESTS: "src/SaturnTweaks.Tests/SaturnTweaks.Tests.csproj"
+  SOLUTION:      "SaturnTweaks.sln"
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Job 1: Build, test, publish EXE
+  # ─────────────────────────────────────────────────────────────────────────
+  build-and-test:
+    name: Build & Test (Windows x64)
+    runs-on: windows-latest
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      assembly_version: ${{ steps.version.outputs.assembly_version }}
+      file_version: ${{ steps.version.outputs.file_version }}
+      informational_version: ${{ steps.version.outputs.informational_version }}
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Determine version ─────────────────────────────────────────────────
+      - name: Determine version
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "push" -and "${{ github.ref }}" -like "refs/tags/v*") {
+            $ver = "${{ github.ref_name }}" -replace "^v", ""
+          } elseif ("${{ inputs.version }}" -ne "") {
+            $ver = "${{ inputs.version }}"
+          } else {
+            $ver = "1.0.0-dev"
+          }
+          # SemVer (for example 1.0.0-dev) is valid for InformationalVersion,
+          # but AssemblyVersion and FileVersion must be numeric four-part versions.
+          $match = [regex]::Match(
+            $ver,
+            '^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:\.(?<revision>\d+))?(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$'
+          )
+          if (-not $match.Success) {
+            throw "Version '$ver' is invalid. Use SemVer such as 1.0.0, 1.2.3-dev, or 1.2.3+build."
+          }
+          $revision = if ($match.Groups['revision'].Success) { $match.Groups['revision'].Value } else { '0' }
+          $numericVersion = "$($match.Groups['major'].Value).$($match.Groups['minor'].Value).$($match.Groups['patch'].Value).$revision"
+
+          "version=$ver" >> $env:GITHUB_OUTPUT
+          "assembly_version=$numericVersion" >> $env:GITHUB_OUTPUT
+          "file_version=$numericVersion" >> $env:GITHUB_OUTPUT
+          "informational_version=$ver" >> $env:GITHUB_OUTPUT
+          Write-Host "Package/release version: $ver"
+          Write-Host "Assembly/file version:   $numericVersion"
+
+      # ── .NET SDK ──────────────────────────────────────────────────────────
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # ── Restore ───────────────────────────────────────────────────────────
+      - name: Restore NuGet packages
+        run: dotnet restore ${{ env.SOLUTION }} --verbosity minimal
+
+      # ── Build (Debug first to catch errors fast) ──────────────────────────
+      - name: Build solution (Debug)
+        run: |
+          dotnet build ${{ env.SOLUTION }} `
+            --configuration Debug `
+            --no-restore `
+            --verbosity minimal
+
+      # ── Tests ─────────────────────────────────────────────────────────────
+      # Tests run BEFORE publish. If any test fails, the release does not proceed.
+      - name: Run test suite
+        run: |
+          dotnet test ${{ env.PROJECT_TESTS }} `
+            --configuration Debug `
+            -p:Platform=x64 `
+            --no-build `
+            --verbosity normal `
+            --logger "trx;LogFileName=test-results.trx" `
+            --logger "console;verbosity=detailed" `
+            --results-directory TestResults
+
+      - name: Upload test results
+        if: always()   # Upload even on failure so you can inspect what broke
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/*.trx
+          retention-days: 14
+
+      # ── Build Release ─────────────────────────────────────────────────────
+      - name: Build solution (Release)
+        run: |
+          dotnet build ${{ env.SOLUTION }} `
+            --configuration Release `
+            --no-restore `
+            --verbosity minimal `
+            /p:AssemblyVersion=${{ steps.version.outputs.assembly_version }} `
+            /p:FileVersion=${{ steps.version.outputs.file_version }} `
+            /p:InformationalVersion=${{ steps.version.outputs.informational_version }}
+
+      # ── Publish self-contained single-file EXE ────────────────────────────
+      - name: Publish self-contained EXE
+        run: |
+          dotnet publish ${{ env.PROJECT_UI }} `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained true `
+            --output publish/app `
+            --verbosity minimal `
+            /p:PublishSingleFile=true `
+            /p:PublishReadyToRun=true `
+            /p:IncludeNativeLibrariesForSelfExtract=true `
+            /p:AssemblyVersion=${{ steps.version.outputs.assembly_version }} `
+            /p:FileVersion=${{ steps.version.outputs.file_version }} `
+            /p:InformationalVersion=${{ steps.version.outputs.informational_version }}
+
+      # ── Verify EXE was produced ───────────────────────────────────────────
+      - name: Verify EXE exists
+        shell: pwsh
+        run: |
+          $exe = "publish/app/SaturnTweaks.exe"
+          if (-not (Test-Path $exe)) {
+            Write-Error "SaturnTweaks.exe not found in publish output"
+            exit 1
+          }
+          $size = [Math]::Round((Get-Item $exe).Length / 1MB, 1)
+          Write-Host "SaturnTweaks.exe: $size MB"
+
+      # ── Build portable ZIP ────────────────────────────────────────────────
+      - name: Create portable ZIP
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.version }}"
+          $zipName = "SaturnTweaks-$version-portable-win-x64.zip"
+
+          # Add README to the portable bundle
+          $portableReadme = @"
+          Saturn Tweaks $version — Portable Edition
+          ==========================================
+
+          This is the portable (no-install) version of Saturn Tweaks.
+
+          HOW TO RUN:
+            Double-click SaturnTweaks.exe
+
+          NOTES:
+            - For full functionality (system tweaks), right-click SaturnTweaks.exe
+              and choose "Run as administrator"
+            - Settings and optimization history are stored in:
+              %LOCALAPPDATA%\SaturnTweaks\
+            - No registry entries or shortcuts are created by this portable version
+            - Windows 10 build 19041 (May 2020 Update) or newer required
+
+          To uninstall the portable version, simply delete this folder.
+          "@
+          $portableReadme | Out-File -FilePath "publish/app/README-PORTABLE.txt" -Encoding UTF8
+
+          Compress-Archive -Path "publish/app/*" -DestinationPath "publish/$zipName" -Force
+          $zipSize = [Math]::Round((Get-Item "publish/$zipName").Length / 1MB, 1)
+          Write-Host "Portable ZIP: $zipName ($zipSize MB)"
+          echo "zip_name=$zipName" >> $env:GITHUB_OUTPUT
+        id: portable_zip
+
+      # ── Upload EXE and portable ZIP as artifacts ──────────────────────────
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SaturnTweaks-exe-${{ steps.version.outputs.version }}
+          path: publish/app/SaturnTweaks.exe
+          retention-days: 30
+
+      - name: Upload portable ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SaturnTweaks-portable-${{ steps.version.outputs.version }}
+          path: publish/${{ steps.portable_zip.outputs.zip_name }}
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Job 2: Build installer (depends on build-and-test succeeding)
+  # ─────────────────────────────────────────────────────────────────────────
+  build-installer:
+    name: Build Installer (Inno Setup)
+    runs-on: windows-latest
+    needs: build-and-test
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # Re-publish for installer (separate job, clean workspace)
+      - name: Restore packages
+        run: dotnet restore ${{ env.SOLUTION }} --verbosity minimal
+
+      - name: Publish for installer
+        run: |
+          dotnet publish ${{ env.PROJECT_UI }} `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained true `
+            --output installer/app_files `
+            --verbosity minimal `
+            /p:PublishSingleFile=true `
+            /p:PublishReadyToRun=true `
+            /p:IncludeNativeLibrariesForSelfExtract=true `
+            /p:AssemblyVersion=${{ needs.build-and-test.outputs.assembly_version }} `
+            /p:FileVersion=${{ needs.build-and-test.outputs.file_version }} `
+            /p:InformationalVersion=${{ needs.build-and-test.outputs.informational_version }}
+
+      - name: Verify installer publish output
+        shell: pwsh
+        run: |
+          $publishDir = "installer/app_files"
+          $exe = Join-Path $publishDir "SaturnTweaks.exe"
+          if (-not (Test-Path $exe)) {
+            Write-Host "Publish directory contents:"
+            if (Test-Path $publishDir) { Get-ChildItem $publishDir -Force | Format-Table Name, Length }
+            else { Write-Host "Publish directory does not exist: $publishDir" }
+            throw "SaturnTweaks.exe was not produced in $publishDir"
+          }
+          Write-Host "Installer input executable: $exe"
+          Get-ChildItem $publishDir -Force | Format-Table Name, Length
+
+      # Install Inno Setup (free, widely used Windows installer compiler)
+      - name: Install Inno Setup
+        run: choco install innosetup --yes --no-progress
+
+      # Run the Inno Setup compiler against our .iss script
+      - name: Compile installer
+        shell: pwsh
+        run: |
+          $version = "${{ needs.build-and-test.outputs.version }}"
+          $issScript = "installer/SaturnTweaks.iss"
+
+          # Pass version into the ISS script via /D define
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" `
+            /DAppVersion=$version `
+            /DAppNumericVersion=${{ needs.build-and-test.outputs.assembly_version }} `
+            /DSourceDir="$PWD\installer\app_files" `
+            /DOutputDir="$PWD\installer\output" `
+            $issScript
+
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Inno Setup compilation failed with exit code $LASTEXITCODE"
+            exit 1
+          }
+
+          $installerFile = Get-ChildItem "installer/output/*.exe" | Select-Object -First 1
+          if (-not $installerFile) {
+            Write-Error "Installer EXE not found in installer/output/"
+            exit 1
+          }
+          $size = [Math]::Round($installerFile.Length / 1MB, 1)
+          Write-Host "Installer: $($installerFile.Name) ($size MB)"
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SaturnTweaks-installer-${{ needs.build-and-test.outputs.version }}
+          path: installer/output/SaturnTweaks-*-Setup.exe
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Job 3: Create GitHub Release with all artifacts (tag pushes only)
+  # ─────────────────────────────────────────────────────────────────────────
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-and-test, build-installer]
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download EXE artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SaturnTweaks-exe-${{ needs.build-and-test.outputs.version }}
+          path: release-files/
+
+      - name: Download portable ZIP artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SaturnTweaks-portable-${{ needs.build-and-test.outputs.version }}
+          path: release-files/
+
+      - name: Download installer artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SaturnTweaks-installer-${{ needs.build-and-test.outputs.version }}
+          path: release-files/
+
+      - name: List release files
+        run: ls -lh release-files/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Saturn Tweaks v${{ needs.build-and-test.outputs.version }}"
+          body: |
+            ## Saturn Tweaks v${{ needs.build-and-test.outputs.version }}
+
+            ### Downloads
+
+            | File | Description |
+            |------|-------------|
+            | `SaturnTweaks-*-Setup.exe` | **Recommended** — Windows installer with desktop shortcut and uninstaller |
+            | `SaturnTweaks-*-portable-win-x64.zip` | Portable — extract and run, no installation needed |
+
+            ### Requirements
+            - Windows 10 build 19041 (May 2020 Update) or Windows 11
+            - No additional runtime required (self-contained)
+            - Administrator rights recommended for full tweak functionality
+
+            ### What's in this release
+            - 19 gaming optimizations across Performance, Graphics, Input, Memory, and Advanced categories
+            - Live system monitoring with before/after comparison reports
+            - Full rollback for every change via the Restore Center
+            - Game library detection (Steam, Epic, Xbox) with config backup
+
+            ### Safety notes
+            - Every tweak is reversible via the Restore Center
+            - All changes are verified by read-back before being reported as applied
+            - No tweaks disable Windows Defender, Windows Update, or Windows Firewall
+            - Run as Administrator for system-level tweaks; standard user mode is supported
+
+            > **Note:** This application has not been code-signed. Windows Defender SmartScreen
+            > may show a warning on first run. Click "More info" → "Run anyway" to proceed.
+            > This is expected for self-published software without a code-signing certificate.
+
+          files: release-files/*
+          draft: false
+          prerelease: ${{ contains(needs.build-and-test.outputs.version, '-') }}
+          token: ${{ secrets.GITHUB_TOKEN }}

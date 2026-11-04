@@ -1,0 +1,86 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Saturn Tweaks Typography -->
+    <FontFamily x:Key="SaturnFontFamily">Segoe UI Variable Display, Segoe UI, sans-serif</FontFamily>
+    <FontFamily x:Key="SaturnMonoFamily">Cascadia Code, Consolas, monospace</FontFamily>
+
+    <!-- Display -->
+    <Style x:Key="DisplayLargeText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SaturnFontFamily}" />
+        <Setter Property="FontSize" Value="32" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="LineHeight" Value="40" />
+    </Style>
+
+    <Style x:Key="DisplayMediumText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SaturnFontFamily}" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+    </Style>
+
+    <!-- Headings -->
+    <Style x:Key="HeadingLargeText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SaturnFontFamily}" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="HeadingMediumText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SaturnFontFamily}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="HeadingSmallText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SaturnFontFamily}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+    </Style>
+
+    <!-- Body -->
+    <Style x:Key="BodyText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SaturnFontFamily}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+        <Setter Property="LineHeight" Value="22" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="BodySecondaryText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SaturnFontFamily}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+        <Setter Property="LineHeight" Value="20" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <!-- Caption -->
+    <Style x:Key="CaptionText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SaturnFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource TextTertiaryBrush}" />
+    </Style>
+
+    <!-- Mono / values -->
+    <Style x:Key="MonoValueText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SaturnMonoFamily}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="MetricLargeText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SaturnMonoFamily}" />
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource AccentPrimaryBrush}" />
+    </Style>
+
+</ResourceDictionary>

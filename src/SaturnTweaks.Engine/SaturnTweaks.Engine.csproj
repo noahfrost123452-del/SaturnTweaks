@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>SaturnTweaks.Engine</AssemblyName>
+    <RootNamespace>SaturnTweaks.Engine</RootNamespace>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SaturnTweaks.Core\SaturnTweaks.Core.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+    <!--
+      System.Diagnostics.PerformanceCounter is required for PerformanceCounter on .NET 5+.
+      On .NET Framework it was in the BCL; on .NET Core / .NET 5+ it must be referenced
+      explicitly. The net8.0-windows TFM does not auto-include it.
+    -->
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="8.0.0" />
+  </ItemGroup>
+</Project>

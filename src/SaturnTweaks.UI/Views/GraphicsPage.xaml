@@ -1,0 +1,244 @@
+<Page x:Class="SaturnTweaks.UI.Views.GraphicsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{StaticResource BackgroundBaseBrush}"
+      Title="Graphics">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="340" />
+        </Grid.ColumnDefinitions>
+
+        <ScrollViewer Grid.Column="0" Style="{StaticResource SaturnScrollViewer}"
+                      Padding="32,28,16,28">
+            <StackPanel>
+                <!-- Header -->
+                <TextBlock Text="Graphics &amp; Rendering" Style="{StaticResource DisplayMediumText}" />
+                <TextBlock Text="GPU info, scheduling, display config, and rendering optimizations"
+                           Style="{StaticResource BodySecondaryText}" Margin="0,4,0,24" />
+
+                <!-- GPU Cards -->
+                <TextBlock Text="DETECTED GPUs" Style="{StaticResource HeadingSmallText}"
+                           Opacity="0.5" Margin="0,0,0,12" />
+                <ItemsControl ItemsSource="{Binding GpuDetails}" Margin="0,0,0,20">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource SaturnCard}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding Name}"
+                                                   Style="{StaticResource HeadingMediumText}" />
+                                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                            <TextBlock Text="{Binding Vendor}"
+                                                       Style="{StaticResource CaptionText}" Margin="0,0,16,0" />
+                                            <TextBlock Text="{Binding VramDisplay}"
+                                                       Style="{StaticResource CaptionText}" Margin="0,0,16,0" />
+                                            <TextBlock Text="{Binding TypeDisplay}"
+                                                       Style="{StaticResource CaptionText}" />
+                                        </StackPanel>
+                                        <TextBlock Margin="0,4,0,0" Style="{StaticResource CaptionText}">
+                                            <Run Text="Driver: " />
+                                            <Run Text="{Binding DriverVersion}" />
+                                        </TextBlock>
+                                        <TextBlock Margin="0,2,0,0" Style="{StaticResource CaptionText}">
+                                            <Run Text="Utilization: " />
+                                            <Run Text="{Binding UtilizationDisplay}" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <Border Grid.Column="1" Style="{StaticResource StatusBadgeAccent}"
+                                            VerticalAlignment="Top">
+                                        <TextBlock Text="{Binding TypeDisplay}" FontSize="11" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource AccentTertiaryBrush}" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Displays -->
+                <TextBlock Text="DISPLAYS" Style="{StaticResource HeadingSmallText}"
+                           Opacity="0.5" Margin="0,0,0,12" />
+                <ItemsControl ItemsSource="{Binding Displays}" Margin="0,0,0,20">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="14,10" Margin="0,0,0,8"
+                                    Background="{StaticResource BackgroundCardBrush}"
+                                    BorderBrush="{StaticResource BorderSubtleBrush}"
+                                    BorderThickness="1" CornerRadius="8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding Name}"
+                                                   Style="{StaticResource HeadingMediumText}" FontSize="13" />
+                                        <TextBlock Style="{StaticResource CaptionText}" Margin="0,3,0,0">
+                                            <Run Text="{Binding Resolution}" />
+                                            <Run Text=" @ " />
+                                            <Run Text="{Binding RefreshRate}" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="{Binding HdrStatus}"
+                                               Style="{StaticResource CaptionText}"
+                                               VerticalAlignment="Center" Margin="12,0" />
+                                    <TextBlock Grid.Column="2" Text="{Binding VrrStatus}"
+                                               Style="{StaticResource CaptionText}"
+                                               VerticalAlignment="Center" Margin="12,0" />
+                                    <Border Grid.Column="3" Style="{StaticResource StatusBadgeSafe}"
+                                            VerticalAlignment="Center"
+                                            Visibility="{Binding IsPrimary, Converter={StaticResource BoolToVis}}">
+                                        <TextBlock Text="Primary" FontSize="11" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource SuccessBrush}" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- VBS/HVCI Note -->
+                <Border Style="{StaticResource StatusBadgeWarning}" Padding="14,10" Margin="0,0,0,20"
+                        Visibility="{Binding VbsEnabled, Converter={StaticResource BoolToVis}}">
+                    <TextBlock TextWrapping="Wrap" Foreground="{StaticResource WarningBrush}" FontSize="13">
+                        <Run FontWeight="SemiBold" Text="Virtualization Based Security (VBS) is enabled. " />
+                        <Run Text="This can reduce GPU scheduler efficiency. VBS is a security feature — " />
+                        <Run Text="disabling it is not recommended for most users." />
+                    </TextBlock>
+                </Border>
+
+                <!-- Graphics Tweaks -->
+                <TextBlock Text="GRAPHICS OPTIMIZATIONS" Style="{StaticResource HeadingSmallText}"
+                           Opacity="0.5" Margin="0,0,0,12" />
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <Button Content="Apply Selected" Style="{StaticResource SaturnPrimaryButton}"
+                            Command="{Binding ApplySelectedCommand}"
+                            IsEnabled="{Binding IsRunning, Converter={StaticResource InverseBool}}" />
+                    <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
+                        <CheckBox Style="{StaticResource SaturnToggle}" IsChecked="{Binding DryRunMode}" />
+                        <TextBlock Text="Dry Run" Margin="8,0,0,0"
+                                   Style="{StaticResource BodySecondaryText}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+
+                <ProgressBar IsIndeterminate="True" Height="2" Margin="0,0,0,10"
+                             Foreground="{StaticResource AccentPrimaryBrush}"
+                             Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}" />
+
+                <Border Background="{StaticResource BackgroundElevatedBrush}" CornerRadius="8"
+                        Padding="12,8" Margin="0,0,0,12"
+                        Visibility="{Binding SessionSummary, Converter={StaticResource StringToVis}}">
+                    <TextBlock Text="{Binding SessionSummary}" Style="{StaticResource BodySecondaryText}" />
+                </Border>
+
+                <ItemsControl ItemsSource="{Binding Tweaks}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource TweakRowCard}"
+                                    Tag="{Binding IsPreviewed}"
+                                    MouseLeftButtonDown="TweakRow_Click">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="100" />
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}"
+                                              IsEnabled="{Binding IsApplicable}"
+                                              VerticalAlignment="Center" Margin="0,0,12,0" />
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding DisplayName}"
+                                                   Style="{StaticResource HeadingMediumText}" FontSize="14" />
+                                        <TextBlock Text="{Binding ShortDescription}"
+                                                   Style="{StaticResource BodySecondaryText}"
+                                                   FontSize="12" Margin="0,2,0,0" />
+                                    </StackPanel>
+                                    <Border Grid.Column="2" Padding="6,3" CornerRadius="4"
+                                            Margin="8,0" VerticalAlignment="Center">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{Binding RiskColor}" Opacity="0.15" />
+                                        </Border.Background>
+                                        <TextBlock Text="{Binding Risk}" FontSize="11" FontWeight="SemiBold">
+                                            <TextBlock.Foreground>
+                                                <SolidColorBrush Color="{Binding RiskColor}" />
+                                            </TextBlock.Foreground>
+                                        </TextBlock>
+                                    </Border>
+                                    <TextBlock Grid.Column="3" Text="{Binding StatusText}"
+                                               Style="{StaticResource CaptionText}"
+                                               VerticalAlignment="Center" TextAlignment="Right" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Detail panel -->
+        <Border Grid.Column="1" Background="{StaticResource BackgroundElevatedBrush}"
+                BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1,0,0,0"
+                Padding="24,28">
+            <ScrollViewer Style="{StaticResource SaturnScrollViewer}">
+                <StackPanel>
+                    <TextBlock Text="PREVIEW BEFORE APPLYING" Style="{StaticResource HeadingSmallText}"
+                               Opacity="0.5" Margin="0,0,0,20" />
+                    <TextBlock Text="Select a tweak to view details."
+                               Style="{StaticResource BodySecondaryText}"
+                               Visibility="{Binding SelectedTweak, Converter={StaticResource NullToVis}}" />
+                    <StackPanel Visibility="{Binding SelectedTweak, Converter={StaticResource NotNullToVis}}">
+                        <TextBlock Text="{Binding SelectedTweak.DisplayName}"
+                                   Style="{StaticResource HeadingLargeText}" TextWrapping="Wrap" />
+                        <TextBlock Text="PRE-APPLY PREVIEW — NO CHANGES MADE" FontSize="10"
+                                   FontWeight="Bold" Foreground="{StaticResource AccentTertiaryBrush}"
+                                   Margin="0,0,0,14" TextWrapping="Wrap" />
+                        <TextBlock Text="Planned change" Style="{StaticResource HeadingSmallText}"
+                                   Opacity="0.65" Margin="0,0,0,6" />
+                        <Border Background="{StaticResource BackgroundCardBrush}"
+                                BorderBrush="{StaticResource BorderSubtleBrush}" BorderThickness="1"
+                                CornerRadius="7" Padding="10,8" Margin="0,0,0,12">
+                            <TextBlock Text="{Binding SelectedTweak.ProposedChange}"
+                                       Style="{StaticResource MonoValueText}" FontSize="11"
+                                       TextWrapping="Wrap" />
+                        </Border>
+                        <TextBlock Text="Windows setting location" Style="{StaticResource HeadingSmallText}"
+                                   Opacity="0.65" Margin="0,0,0,6" />
+                        <TextBlock Text="{Binding SelectedTweak.ChangeLocation}"
+                                   Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                                   Margin="0,0,0,14" />
+                        <TextBlock Text="Current Value" Style="{StaticResource HeadingSmallText}"
+                                   Opacity="0.5" Margin="0,16,0,6" />
+                        <Border Background="{StaticResource BackgroundCardBrush}" CornerRadius="6" Padding="10,7">
+                            <TextBlock Text="{Binding SelectedTweak.CurrentValue}"
+                                       Style="{StaticResource MonoValueText}" FontSize="12" />
+                        </Border>
+                        <TextBlock Text="What This Does" Style="{StaticResource HeadingSmallText}"
+                                   Opacity="0.5" Margin="0,16,0,8" />
+                        <TextBlock Text="{Binding SelectedTweak.DetailedExplanation}"
+                                   Style="{StaticResource BodySecondaryText}" Margin="0,0,0,14" />
+                        <TextBlock Text="Expected Benefit" Style="{StaticResource HeadingSmallText}"
+                                   Opacity="0.5" Margin="0,0,0,8" />
+                        <TextBlock Text="{Binding SelectedTweak.ExpectedBenefit}"
+                                   Foreground="{StaticResource SuccessBrush}" FontSize="13"
+                                   TextWrapping="Wrap" Margin="0,0,0,14" />
+                        <TextBlock Text="Trade-offs" Style="{StaticResource HeadingSmallText}"
+                                   Opacity="0.5" Margin="0,0,0,8" />
+                        <TextBlock Text="{Binding SelectedTweak.PotentialDisadvantages}"
+                                   Foreground="{StaticResource WarningBrush}" FontSize="13"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</Page>

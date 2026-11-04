@@ -1,0 +1,261 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ══════════════════════════════════════════
+         SATURN PRIMARY BUTTON
+         ══════════════════════════════════════════ -->
+    <Style x:Key="SaturnPrimaryButton" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource AccentPrimaryBrush}" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+        <Setter Property="FontFamily" Value="{StaticResource SaturnFontFamily}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Padding" Value="20,10" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="8"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="#9070FF" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="#6040D0" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Background" Value="{StaticResource BackgroundCardBrush}" />
+                            <Setter TargetName="Root" Property="Opacity" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ══════════════════════════════════════════
+         SATURN GHOST BUTTON
+         ══════════════════════════════════════════ -->
+    <Style x:Key="SaturnGhostButton" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+        <Setter Property="FontFamily" Value="{StaticResource SaturnFontFamily}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Padding" Value="16,8" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{StaticResource BackgroundHoverBrush}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource AccentPrimaryBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{StaticResource BackgroundCardBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ══════════════════════════════════════════
+         SATURN CARD
+         ══════════════════════════════════════════ -->
+    <Style x:Key="SaturnCard" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource BackgroundCardBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="20" />
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect Color="#000000" Opacity="0.3" BlurRadius="20" ShadowDepth="4" Direction="270" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ══════════════════════════════════════════
+         TWEAK ROW CARD (clickable card in list)
+         ══════════════════════════════════════════ -->
+    <Style x:Key="TweakRowCard" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource BackgroundCardBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="16,14" />
+        <Setter Property="Margin" Value="0,0,0,8" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Style.Triggers>
+            <Trigger Property="Tag" Value="True">
+                <Setter Property="Background" Value="#211B38" />
+                <Setter Property="BorderBrush" Value="{StaticResource AccentPrimaryBrush}" />
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{StaticResource AccentSecondaryBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ══════════════════════════════════════════
+         STATUS BADGE
+         ══════════════════════════════════════════ -->
+    <Style x:Key="StatusBadgeSafe" TargetType="Border">
+        <Setter Property="Background" Value="#1A22C55E" />
+        <Setter Property="BorderBrush" Value="#22C55E" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="8,3" />
+    </Style>
+
+    <Style x:Key="StatusBadgeWarning" TargetType="Border">
+        <Setter Property="Background" Value="#1AF59E0B" />
+        <Setter Property="BorderBrush" Value="#F59E0B" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="8,3" />
+    </Style>
+
+    <Style x:Key="StatusBadgeError" TargetType="Border">
+        <Setter Property="Background" Value="#1AEF4444" />
+        <Setter Property="BorderBrush" Value="#EF4444" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="8,3" />
+    </Style>
+
+    <Style x:Key="StatusBadgeAccent" TargetType="Border">
+        <Setter Property="Background" Value="#1A7C5CFC" />
+        <Setter Property="BorderBrush" Value="#7C5CFC" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="Padding" Value="8,3" />
+    </Style>
+
+    <!-- ══════════════════════════════════════════
+         SIDEBAR NAV ITEM BUTTON
+         ══════════════════════════════════════════ -->
+    <Style x:Key="SidebarNavItem" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}" />
+        <Setter Property="FontFamily" Value="{StaticResource SaturnFontFamily}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="Padding" Value="16,12" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Border x:Name="Bg" CornerRadius="8" Background="Transparent" />
+                        <Border x:Name="ActiveIndicator"
+                                Width="3" HorizontalAlignment="Left"
+                                CornerRadius="2" Background="Transparent" />
+                        <ContentPresenter Margin="8,0,0,0"
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Center" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource SidebarHoverBrush}" />
+                        </Trigger>
+                        <Trigger Property="Tag" Value="Active">
+                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource SidebarActiveBrush}" />
+                            <Setter TargetName="ActiveIndicator" Property="Background" Value="{StaticResource AccentPrimaryBrush}" />
+                            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ══════════════════════════════════════════
+         TOGGLE SWITCH (CheckBox styled)
+         ══════════════════════════════════════════ -->
+    <Style x:Key="SaturnToggle" TargetType="CheckBox">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid VerticalAlignment="Center">
+                        <Border x:Name="Track"
+                                Width="44" Height="24"
+                                CornerRadius="12"
+                                Background="{StaticResource BorderDefaultBrush}" />
+                        <Ellipse x:Name="Thumb"
+                                 Width="18" Height="18"
+                                 HorizontalAlignment="Left"
+                                 Margin="3,0,0,0"
+                                 Fill="White" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Track" Property="Background" Value="{StaticResource AccentPrimaryBrush}" />
+                            <Setter TargetName="Thumb" Property="Margin" Value="23,0,0,0" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Track" Property="Opacity" Value="0.4" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ══════════════════════════════════════════
+         PROGRESS BAR — slim accent
+         ══════════════════════════════════════════ -->
+    <Style x:Key="SaturnProgressBar" TargetType="ProgressBar">
+        <Setter Property="Height" Value="4" />
+        <Setter Property="Background" Value="{StaticResource BorderSubtleBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource AccentPrimaryBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ProgressBar">
+                    <Grid>
+                        <Border Background="{TemplateBinding Background}" CornerRadius="2" />
+                        <Border x:Name="PART_Track" CornerRadius="2" />
+                        <Border x:Name="PART_Indicator"
+                                Background="{TemplateBinding Foreground}"
+                                CornerRadius="2"
+                                HorizontalAlignment="Left" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ScrollViewer with dark scrollbar -->
+    <Style x:Key="SaturnScrollViewer" TargetType="ScrollViewer">
+        <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <!-- Separator -->
+    <Style x:Key="SaturnSeparator" TargetType="Separator">
+        <Setter Property="Background" Value="{StaticResource BorderSubtleBrush}" />
+        <Setter Property="Height" Value="1" />
+        <Setter Property="Margin" Value="0,8" />
+    </Style>
+
+</ResourceDictionary>

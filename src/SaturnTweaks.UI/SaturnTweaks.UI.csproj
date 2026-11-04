@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>SaturnTweaks</AssemblyName>
+    <RootNamespace>SaturnTweaks.UI</RootNamespace>
+    <ApplicationIcon>Assets\saturn.ico</ApplicationIcon>
+    <Platforms>x64</Platforms>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Product>Saturn Tweaks</Product>
+    <Company>Saturn Software</Company>
+    <Description>Windows Gaming Optimization Suite</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SaturnTweaks.Core\SaturnTweaks.Core.csproj" />
+    <ProjectReference Include="..\SaturnTweaks.Engine\SaturnTweaks.Engine.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <!--
+      LiveChartsCore.SkiaSharpView.WPF removed: the package was referenced in v1/v2
+      but no LiveCharts API is called anywhere in the UI source. The Diagnostics page
+      CPU history chart is implemented using native WPF ItemsControl rectangles scaled
+      by PercentToHeightConverter. Adding LiveCharts back requires explicit initialisation
+      (LiveCharts.Configure()) and type-safe series/axis objects; do that when adding a
+      full chart implementation rather than pulling in the dependency unused.
+    -->
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\**\*" />
+  </ItemGroup>
+</Project>

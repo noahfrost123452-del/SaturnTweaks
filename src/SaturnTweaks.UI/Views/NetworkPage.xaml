@@ -1,0 +1,177 @@
+<Page x:Class="SaturnTweaks.UI.Views.NetworkPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{StaticResource BackgroundBaseBrush}"
+      Title="Network">
+
+    <ScrollViewer Style="{StaticResource SaturnScrollViewer}" Padding="32,28,32,32">
+        <StackPanel>
+
+            <!-- Header -->
+            <TextBlock Text="Network" Style="{StaticResource DisplayMediumText}" />
+            <TextBlock Text="Connection diagnostics, latency testing, and adapter configuration"
+                       Style="{StaticResource BodySecondaryText}" Margin="0,4,0,24" />
+
+            <!-- Adapters -->
+            <Border Style="{StaticResource SaturnCard}" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="ACTIVE ADAPTERS" Style="{StaticResource HeadingSmallText}"
+                               Opacity="0.5" Margin="0,0,0,16" />
+                    <ItemsControl ItemsSource="{Binding Adapters}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="12,10" Margin="0,0,0,8"
+                                        Background="{StaticResource BackgroundElevatedBrush}"
+                                        CornerRadius="8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding Name}"
+                                                       Style="{StaticResource HeadingMediumText}" FontSize="14" />
+                                            <TextBlock Style="{StaticResource CaptionText}" Margin="0,3,0,0">
+                                                <Run Text="{Binding ConnectionType}" />
+                                                <Run Text=" · " />
+                                                <Run Text="{Binding IpAddress}" />
+                                                <Run Text=" · Gateway: " />
+                                                <Run Text="{Binding Gateway}" />
+                                            </TextBlock>
+                                            <TextBlock Style="{StaticResource CaptionText}" Margin="0,2,0,0">
+                                                <Run Text="DNS: " />
+                                                <Run Text="{Binding DnsServers[0]}" />
+                                            </TextBlock>
+                                        </StackPanel>
+                                        <Border Grid.Column="1" VerticalAlignment="Center">
+                                            <Border Style="{StaticResource StatusBadgeSafe}"
+                                                    Visibility="{Binding IsConnected, Converter={StaticResource BoolToVis}}">
+                                                <TextBlock Text="Connected" FontSize="11" FontWeight="SemiBold"
+                                                           Foreground="{StaticResource SuccessBrush}" />
+                                            </Border>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Latency Test -->
+            <Border Style="{StaticResource SaturnCard}" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="LATENCY TEST" Style="{StaticResource HeadingSmallText}"
+                               Opacity="0.5" Margin="0,0,0,16" />
+
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="{StaticResource BackgroundElevatedBrush}"
+                                CornerRadius="8" Padding="12,8">
+                            <TextBox Text="{Binding PingTarget, UpdateSourceTrigger=PropertyChanged}"
+                                     Background="Transparent" BorderThickness="0"
+                                     Foreground="{StaticResource TextPrimaryBrush}"
+                                     FontFamily="{StaticResource SaturnMonoFamily}"
+                                     FontSize="14" VerticalAlignment="Center" />
+                        </Border>
+                        <Button Grid.Column="2" Content="Ping Test (×10)"
+                                Style="{StaticResource SaturnPrimaryButton}"
+                                Command="{Binding RunPingTestCommand}"
+                                IsEnabled="{Binding IsTesting, Converter={StaticResource InverseBool}}" />
+                        <Button Grid.Column="4" Content="DNS Test"
+                                Style="{StaticResource SaturnGhostButton}"
+                                Command="{Binding RunDnsTestCommand}"
+                                IsEnabled="{Binding IsTesting, Converter={StaticResource InverseBool}}" />
+                    </Grid>
+
+                    <ProgressBar IsIndeterminate="True" Height="2" Margin="0,0,0,12"
+                                 Foreground="{StaticResource AccentPrimaryBrush}"
+                                 Visibility="{Binding IsTesting, Converter={StaticResource BoolToVis}}" />
+
+                    <!-- Metrics row -->
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding LatencyMs, StringFormat={}{0:F1} ms}"
+                                       Style="{StaticResource MetricLargeText}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Avg Latency" Style="{StaticResource CaptionText}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding JitterMs, StringFormat={}{0:F1} ms}"
+                                       Style="{StaticResource MetricLargeText}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Jitter" Style="{StaticResource CaptionText}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding PacketLossPercent, StringFormat={}{0}%}"
+                                       Style="{StaticResource MetricLargeText}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Packet Loss" Style="{StaticResource CaptionText}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="{Binding PingResult}" Style="{StaticResource BodySecondaryText}"
+                               Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding DnsResult}" Style="{StaticResource BodySecondaryText}" />
+
+                    <!-- Ping history list -->
+                    <ItemsControl ItemsSource="{Binding PingHistory}" Margin="0,12,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="80" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Sequence, StringFormat=#{0}}"
+                                               Style="{StaticResource CaptionText}" />
+                                    <ProgressBar Grid.Column="1" Height="4"
+                                                 Maximum="200"
+                                                 Value="{Binding LatencyMs}"
+                                                 Style="{StaticResource SaturnProgressBar}"
+                                                 VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding LatencyMs, StringFormat={}{0} ms}"
+                                               Style="{StaticResource CaptionText}"
+                                               TextAlignment="Right" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Network notes — factual, no false claims -->
+            <Border Style="{StaticResource SaturnCard}">
+                <StackPanel>
+                    <TextBlock Text="IMPORTANT: WHAT NETWORK TWEAKS ACTUALLY DO"
+                               Style="{StaticResource HeadingSmallText}" Opacity="0.5" Margin="0,0,0,12" />
+                    <TextBlock Style="{StaticResource BodySecondaryText}">
+                        In-game ping is determined by: your ISP routing, server location, congestion between
+                        you and the game server, and your physical connection type (Ethernet vs Wi-Fi).
+                        DNS changes affect name resolution speed only — they do not lower game server ping.
+                        TCP/IP setting changes are system-specific; what helps one configuration may hurt another.
+                        Saturn Tweaks does not apply untested or undocumented network registry changes.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

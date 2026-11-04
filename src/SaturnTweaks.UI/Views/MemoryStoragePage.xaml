@@ -1,0 +1,251 @@
+<Page x:Class="SaturnTweaks.UI.Views.MemoryStoragePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{StaticResource BackgroundBaseBrush}"
+      Title="Memory &amp; Storage">
+
+    <ScrollViewer Style="{StaticResource SaturnScrollViewer}" Padding="32,28,32,32">
+        <StackPanel>
+            <TextBlock Text="Memory &amp; Storage" Style="{StaticResource DisplayMediumText}" />
+            <TextBlock Text="RAM usage, page file, drive health, temp cleanup, and memory optimizations"
+                       Style="{StaticResource BodySecondaryText}" Margin="0,4,0,24" />
+
+            <!-- Memory Overview -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource SaturnCard}">
+                    <StackPanel>
+                        <TextBlock Text="MEMORY" Style="{StaticResource HeadingSmallText}"
+                                   Opacity="0.5" Margin="0,0,0,12" />
+                        <TextBlock Text="{Binding UsedRamDisplay}"
+                                   Style="{StaticResource HeadingMediumText}" TextWrapping="Wrap" />
+                        <ProgressBar Value="{Binding RamUsagePercent}" Maximum="100"
+                                     Style="{StaticResource SaturnProgressBar}" Margin="0,10,0,8" />
+                        <TextBlock Text="{Binding PageFileStatus}"
+                                   Style="{StaticResource CaptionText}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource SaturnCard}">
+                    <StackPanel>
+                        <TextBlock Text="TOP MEMORY CONSUMERS" Style="{StaticResource HeadingSmallText}"
+                                   Opacity="0.5" Margin="0,0,0,12" />
+                        <ItemsControl ItemsSource="{Binding TopProcesses}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,5">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="80" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Name}"
+                                                   Style="{StaticResource CaptionText}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="1" Text="{Binding MemoryDisplay}"
+                                                   Style="{StaticResource MonoValueText}"
+                                                   FontSize="12" TextAlignment="Right" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Drive Health -->
+            <TextBlock Text="STORAGE DRIVES" Style="{StaticResource HeadingSmallText}"
+                       Opacity="0.5" Margin="0,0,0,12" />
+            <ItemsControl ItemsSource="{Binding Drives}" Margin="0,0,0,20">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="16,12" Margin="0,0,0,8"
+                                Background="{StaticResource BackgroundCardBrush}"
+                                BorderBrush="{StaticResource BorderSubtleBrush}"
+                                BorderThickness="1" CornerRadius="10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="200" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{Binding Summary}"
+                                               Style="{StaticResource HeadingMediumText}" FontSize="13" />
+                                    <TextBlock Style="{StaticResource CaptionText}" Margin="0,4,0,0">
+                                        <Run Text="{Binding FileSystem}" />
+                                        <Run Text="  ·  SMART: " />
+                                        <Run Text="{Binding HealthStatus}" />
+                                    </TextBlock>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Margin="16,0" VerticalAlignment="Center">
+                                    <ProgressBar Value="{Binding UsedPercent}" Maximum="100"
+                                                 Style="{StaticResource SaturnProgressBar}" />
+                                    <TextBlock Style="{StaticResource CaptionText}" Margin="0,4,0,0"
+                                               TextAlignment="Right">
+                                        <Run Text="{Binding FreeDisplay}" />
+                                        <Run Text=" free" />
+                                    </TextBlock>
+                                </StackPanel>
+                                <Border Grid.Column="2" Style="{StaticResource StatusBadgeWarning}"
+                                        VerticalAlignment="Center"
+                                        Visibility="{Binding LowSpaceWarning, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock Text="Low Space" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{StaticResource WarningBrush}" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Temp File Cleanup -->
+            <Border Style="{StaticResource SaturnCard}" Margin="0,0,0,20">
+                <StackPanel>
+                    <Grid Margin="0,0,0,14">
+                        <TextBlock Text="TEMPORARY FILE CLEANUP" Style="{StaticResource HeadingSmallText}"
+                                   Opacity="0.5" />
+                        <TextBlock Text="{Binding TotalTempSize}" Style="{StaticResource CaptionText}"
+                                   HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Button Content="Scan Temp Files" Style="{StaticResource SaturnPrimaryButton}"
+                                Command="{Binding ScanTempFilesCommand}"
+                                IsEnabled="{Binding IsScanning, Converter={StaticResource InverseBool}}" />
+                        <Button Content="Clean Selected" Margin="10,0,0,0"
+                                Style="{StaticResource SaturnGhostButton}"
+                                Command="{Binding CleanSelectedTempCommand}"
+                                IsEnabled="{Binding IsCleaning, Converter={StaticResource InverseBool}}" />
+                    </StackPanel>
+
+                    <ProgressBar IsIndeterminate="True" Height="2" Margin="0,0,0,10"
+                                 Foreground="{StaticResource AccentPrimaryBrush}"
+                                 Visibility="{Binding IsScanning, Converter={StaticResource BoolToVis}}" />
+
+                    <Border Background="{StaticResource BackgroundElevatedBrush}" CornerRadius="8"
+                            Padding="10,6" Margin="0,0,0,12"
+                            Visibility="{Binding CleanupResult, Converter={StaticResource StringToVis}}">
+                        <TextBlock Text="{Binding CleanupResult}" Style="{StaticResource BodySecondaryText}" />
+                    </Border>
+
+                    <!-- Temp folder list with checkboxes — preview before deletion -->
+                    <ItemsControl ItemsSource="{Binding TempFolders}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="12,10" Margin="0,0,0,6"
+                                        Background="{StaticResource BackgroundElevatedBrush}"
+                                        CornerRadius="8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="80" />
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}"
+                                                  VerticalAlignment="Center" Margin="0,0,10,0" />
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Label}"
+                                                       Style="{StaticResource HeadingMediumText}" FontSize="13" />
+                                            <TextBlock Text="{Binding Path}"
+                                                       Style="{StaticResource CaptionText}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="2" Margin="12,0"
+                                                   Style="{StaticResource CaptionText}" VerticalAlignment="Center">
+                                            <Run Text="{Binding FileCount}" />
+                                            <Run Text=" files" />
+                                        </TextBlock>
+                                        <TextBlock Grid.Column="3" Text="{Binding SizeDisplay}"
+                                                   Style="{StaticResource MonoValueText}"
+                                                   FontSize="12" VerticalAlignment="Center"
+                                                   TextAlignment="Right" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Margin="0,10,0,0" Style="{StaticResource CaptionText}"
+                               Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap">
+                        Only system temp directories are listed. Saturn Tweaks does not delete files
+                        outside these well-known locations. Check the file list before cleaning.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- Memory Tweaks -->
+            <TextBlock Text="MEMORY OPTIMIZATIONS" Style="{StaticResource HeadingSmallText}"
+                       Opacity="0.5" Margin="0,0,0,12" />
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                <Button Content="Apply Selected" Style="{StaticResource SaturnPrimaryButton}"
+                        Command="{Binding ApplySelectedTweaksCommand}"
+                        IsEnabled="{Binding IsRunning, Converter={StaticResource InverseBool}}" />
+                <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
+                    <CheckBox Style="{StaticResource SaturnToggle}" IsChecked="{Binding DryRunMode}" />
+                    <TextBlock Text="Dry Run" Margin="8,0,0,0"
+                               Style="{StaticResource BodySecondaryText}" VerticalAlignment="Center" />
+                </StackPanel>
+            </StackPanel>
+
+            <Border Background="{StaticResource BackgroundElevatedBrush}" CornerRadius="8"
+                    Padding="12,8" Margin="0,0,0,12"
+                    Visibility="{Binding SessionSummary, Converter={StaticResource StringToVis}}">
+                <TextBlock Text="{Binding SessionSummary}" Style="{StaticResource BodySecondaryText}" />
+            </Border>
+
+            <ItemsControl ItemsSource="{Binding Tweaks}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource TweakRowCard}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="100" />
+                                </Grid.ColumnDefinitions>
+                                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}"
+                                          IsEnabled="{Binding IsApplicable}"
+                                          VerticalAlignment="Center" Margin="0,0,12,0" />
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding DisplayName}"
+                                               Style="{StaticResource HeadingMediumText}" FontSize="14" />
+                                    <TextBlock Text="{Binding ShortDescription}"
+                                               Style="{StaticResource BodySecondaryText}"
+                                               FontSize="12" Margin="0,2,0,0" />
+                                    <TextBlock Text="{Binding ProposedChange}"
+                                               Foreground="{StaticResource AccentTertiaryBrush}"
+                                               FontSize="11" TextWrapping="Wrap" Margin="0,5,0,0" />
+                                    <TextBlock Text="{Binding ChangeLocation}"
+                                               Style="{StaticResource CaptionText}"
+                                               FontSize="10" TextWrapping="Wrap" Margin="0,2,0,0" />
+                                </StackPanel>
+                                <Border Grid.Column="2" Padding="6,3" CornerRadius="4"
+                                        Margin="8,0" VerticalAlignment="Center">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{Binding RiskColor}" Opacity="0.15" />
+                                    </Border.Background>
+                                    <TextBlock Text="{Binding Risk}" FontSize="11" FontWeight="SemiBold">
+                                        <TextBlock.Foreground>
+                                            <SolidColorBrush Color="{Binding RiskColor}" />
+                                        </TextBlock.Foreground>
+                                    </TextBlock>
+                                </Border>
+                                <TextBlock Grid.Column="3" Text="{Binding StatusText}"
+                                           Style="{StaticResource CaptionText}"
+                                           VerticalAlignment="Center" TextAlignment="Right" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

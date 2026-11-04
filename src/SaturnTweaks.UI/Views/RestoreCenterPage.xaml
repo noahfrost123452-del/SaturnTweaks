@@ -1,0 +1,134 @@
+<Page x:Class="SaturnTweaks.UI.Views.RestoreCenterPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{StaticResource BackgroundBaseBrush}"
+      Title="Restore Center">
+
+    <Grid Margin="32,28,32,28">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="360" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Session list -->
+        <DockPanel Grid.Column="0">
+            <Grid DockPanel.Dock="Top" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="Restore Center" Style="{StaticResource DisplayMediumText}" />
+                    <TextBlock Text="View, roll back, or export your optimization history"
+                               Style="{StaticResource BodySecondaryText}" Margin="0,4,0,0" />
+                </StackPanel>
+            </Grid>
+
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,16">
+                <Button Content="Load History" Style="{StaticResource SaturnPrimaryButton}"
+                        Command="{Binding LoadHistoryCommand}" />
+                <Button Content="Export All" Margin="10,0,0,0"
+                        Style="{StaticResource SaturnGhostButton}"
+                        Command="{Binding ExportHistoryCommand}" />
+            </StackPanel>
+
+            <ProgressBar DockPanel.Dock="Top" IsIndeterminate="True" Height="2"
+                         Margin="0,0,0,12" Foreground="{StaticResource AccentPrimaryBrush}"
+                         Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}" />
+
+            <TextBlock DockPanel.Dock="Top" Text="{Binding StatusMessage}"
+                       Style="{StaticResource BodySecondaryText}" Margin="0,0,0,12" />
+
+            <ScrollViewer Style="{StaticResource SaturnScrollViewer}">
+                <ItemsControl ItemsSource="{Binding Sessions}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource TweakRowCard}"
+                                    MouseLeftButtonDown="Session_Click">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding DisplayName}"
+                                                   Style="{StaticResource HeadingMediumText}" FontSize="14" />
+                                        <TextBlock Text="{Binding Summary}"
+                                                   Style="{StaticResource BodySecondaryText}"
+                                                   FontSize="12" Margin="0,3,0,0" />
+                                    </StackPanel>
+                                    <Border Grid.Column="1" Style="{StaticResource StatusBadgeAccent}"
+                                            VerticalAlignment="Center"
+                                            Visibility="{Binding CanRollBack, Converter={StaticResource BoolToVis}}">
+                                        <TextBlock Text="Restorable" FontSize="11" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource AccentTertiaryBrush}" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
+
+        <!-- Detail panel -->
+        <Border Grid.Column="2"
+                Background="{StaticResource BackgroundElevatedBrush}"
+                BorderBrush="{StaticResource BorderSubtleBrush}"
+                BorderThickness="1" CornerRadius="12" Padding="24">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="SESSION DETAILS"
+                           Style="{StaticResource HeadingSmallText}"
+                           Opacity="0.5" Margin="0,0,0,16" />
+
+                <StackPanel DockPanel.Dock="Bottom" Margin="0,16,0,0">
+                    <Button Content="Roll Back This Session"
+                            Style="{StaticResource SaturnPrimaryButton}"
+                            Command="{Binding RollbackSessionCommand}"
+                            IsEnabled="{Binding SelectedSession.CanRollBack}"
+                            Visibility="{Binding SelectedSession, Converter={StaticResource NotNullToVis}}" />
+                    <ProgressBar IsIndeterminate="True" Height="2" Margin="0,10,0,0"
+                                 Foreground="{StaticResource AccentPrimaryBrush}"
+                                 Visibility="{Binding IsRollingBack, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock Text="Rollback restores each setting to the exact value recorded before it was changed — not a generic default."
+                               Style="{StaticResource BodySecondaryText}"
+                               FontSize="11" Margin="0,10,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+
+                <TextBlock Text="Select a session to view its change records."
+                           Style="{StaticResource BodySecondaryText}"
+                           Visibility="{Binding SelectedSession, Converter={StaticResource NullToVis}}" />
+
+                <ScrollViewer Style="{StaticResource SaturnScrollViewer}"
+                              Visibility="{Binding SelectedSession, Converter={StaticResource NotNullToVis}}">
+                    <ItemsControl ItemsSource="{Binding SelectedSession.Records}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="10,8" Margin="0,0,0,6"
+                                        Background="{StaticResource BackgroundCardBrush}"
+                                        CornerRadius="8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding DisplayName}"
+                                                       Style="{StaticResource HeadingMediumText}" FontSize="13" />
+                                            <TextBlock Style="{StaticResource CaptionText}" Margin="0,2,0,0">
+                                                <Run Text="Was: " />
+                                                <Run Text="{Binding OriginalValue}" />
+                                                <Run Text="  →  " />
+                                                <Run Text="{Binding NewValue}" />
+                                            </TextBlock>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding Result}"
+                                                   Style="{StaticResource CaptionText}"
+                                                   VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Page>

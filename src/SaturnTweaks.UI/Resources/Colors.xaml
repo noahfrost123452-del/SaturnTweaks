@@ -1,0 +1,83 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══════════════════════════════════════════════════
+         SATURN TWEAKS DESIGN SYSTEM — COLOR TOKENS
+         Deep charcoal base, violet/indigo accent palette
+         ═══════════════════════════════════════════════════ -->
+
+    <!-- Background scale -->
+    <Color x:Key="BackgroundDeepColor">#0D0D12</Color>
+    <Color x:Key="BackgroundBaseColor">#111117</Color>
+    <Color x:Key="BackgroundElevatedColor">#16161E</Color>
+    <Color x:Key="BackgroundCardColor">#1C1C26</Color>
+    <Color x:Key="BackgroundHoverColor">#22222E</Color>
+    <Color x:Key="BorderSubtleColor">#2A2A38</Color>
+    <Color x:Key="BorderDefaultColor">#363648</Color>
+
+    <!-- Saturn accent palette — violet/indigo/cool-blue -->
+    <Color x:Key="AccentPrimaryColor">#7C5CFC</Color>       <!-- Saturn violet -->
+    <Color x:Key="AccentSecondaryColor">#5B8DEF</Color>     <!-- Ring blue -->
+    <Color x:Key="AccentTertiaryColor">#A78BFA</Color>      <!-- Light violet -->
+    <Color x:Key="AccentGlowColor">#4C3B9040</Color>        <!-- Subtle glow -->
+
+    <!-- Semantic colors -->
+    <Color x:Key="SuccessColor">#22C55E</Color>
+    <Color x:Key="WarningColor">#F59E0B</Color>
+    <Color x:Key="ErrorColor">#EF4444</Color>
+    <Color x:Key="InfoColor">#38BDF8</Color>
+
+    <!-- Risk level colors -->
+    <Color x:Key="RiskSafeColor">#22C55E</Color>
+    <Color x:Key="RiskLowColor">#84CC16</Color>
+    <Color x:Key="RiskModerateColor">#F59E0B</Color>
+    <Color x:Key="RiskHighColor">#F97316</Color>
+    <Color x:Key="RiskCriticalColor">#EF4444</Color>
+
+    <!-- Text scale -->
+    <Color x:Key="TextPrimaryColor">#F1F0FF</Color>
+    <Color x:Key="TextSecondaryColor">#A8A6C8</Color>
+    <Color x:Key="TextTertiaryColor">#6B698A</Color>
+    <Color x:Key="TextDisabledColor">#3D3B55</Color>
+
+    <!-- Sidebar -->
+    <Color x:Key="SidebarBackgroundColor">#0D0D12</Color>
+    <Color x:Key="SidebarActiveColor">#1E1B2E</Color>
+    <Color x:Key="SidebarHoverColor">#161622</Color>
+
+    <!-- SolidColorBrush exports -->
+    <SolidColorBrush x:Key="BackgroundDeepBrush" Color="{StaticResource BackgroundDeepColor}" />
+    <SolidColorBrush x:Key="BackgroundBaseBrush" Color="{StaticResource BackgroundBaseColor}" />
+    <SolidColorBrush x:Key="BackgroundElevatedBrush" Color="{StaticResource BackgroundElevatedColor}" />
+    <SolidColorBrush x:Key="BackgroundCardBrush" Color="{StaticResource BackgroundCardColor}" />
+    <SolidColorBrush x:Key="BackgroundHoverBrush" Color="{StaticResource BackgroundHoverColor}" />
+    <SolidColorBrush x:Key="BorderSubtleBrush" Color="{StaticResource BorderSubtleColor}" />
+    <SolidColorBrush x:Key="BorderDefaultBrush" Color="{StaticResource BorderDefaultColor}" />
+    <SolidColorBrush x:Key="AccentPrimaryBrush" Color="{StaticResource AccentPrimaryColor}" />
+    <SolidColorBrush x:Key="AccentSecondaryBrush" Color="{StaticResource AccentSecondaryColor}" />
+    <SolidColorBrush x:Key="AccentTertiaryBrush" Color="{StaticResource AccentTertiaryColor}" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" />
+    <SolidColorBrush x:Key="TextTertiaryBrush" Color="{StaticResource TextTertiaryColor}" />
+    <SolidColorBrush x:Key="TextDisabledBrush" Color="{StaticResource TextDisabledColor}" />
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}" />
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}" />
+    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
+    <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoColor}" />
+    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="{StaticResource SidebarBackgroundColor}" />
+    <SolidColorBrush x:Key="SidebarActiveBrush" Color="{StaticResource SidebarActiveColor}" />
+    <SolidColorBrush x:Key="SidebarHoverBrush" Color="{StaticResource SidebarHoverColor}" />
+
+    <!-- Gradient brushes -->
+    <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="{StaticResource AccentPrimaryColor}" Offset="0" />
+        <GradientStop Color="{StaticResource AccentSecondaryColor}" Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="CardTopAccentBrush" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#7C5CFC" Offset="0" />
+        <GradientStop Color="#5B8DEF" Offset="0.6" />
+        <GradientStop Color="#7C5CFC00" Offset="1" />
+    </LinearGradientBrush>
+
+</ResourceDictionary>

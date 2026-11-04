@@ -1,0 +1,152 @@
+<Page x:Class="SaturnTweaks.UI.Views.DiagnosticsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{StaticResource BackgroundBaseBrush}"
+      Title="Diagnostics">
+
+    <ScrollViewer Style="{StaticResource SaturnScrollViewer}" Padding="32,28,32,32">
+        <StackPanel>
+            <TextBlock Text="Diagnostics &amp; Monitoring" Style="{StaticResource DisplayMediumText}" />
+            <TextBlock Text="Live system metrics, before/after comparison, and optimization reports"
+                       Style="{StaticResource BodySecondaryText}" Margin="0,4,0,24" />
+
+            <!-- Live Metrics -->
+            <Border Style="{StaticResource SaturnCard}" Margin="0,0,0,20">
+                <StackPanel>
+                    <Grid Margin="0,0,0,16">
+                        <TextBlock Text="LIVE MONITORING" Style="{StaticResource HeadingSmallText}"
+                                   Opacity="0.5" />
+                        <TextBlock Text="{Binding MonitoringStatus}"
+                                   Style="{StaticResource CaptionText}"
+                                   HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    </Grid>
+
+                    <Button Content="{Binding IsMonitoring, Converter={StaticResource BoolToMonitorText}}"
+                            Style="{StaticResource SaturnPrimaryButton}"
+                            Command="{Binding ToggleMonitoringCommand}"
+                            HorizontalAlignment="Left" Margin="0,0,0,20" />
+
+                    <!-- Live metric readouts -->
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding CpuDisplay}"
+                                       Style="{StaticResource MetricLargeText}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="CPU" Style="{StaticResource CaptionText}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding MemoryDisplay}"
+                                       Style="{StaticResource MetricLargeText}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Memory Used" Style="{StaticResource CaptionText}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding DiskDisplay}"
+                                       Style="{StaticResource MetricLargeText}" FontSize="16"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Disk I/O" Style="{StaticResource CaptionText}"
+                                       HorizontalAlignment="Center" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Simple CPU history bar chart -->
+                    <TextBlock Text="CPU History (last 60s)" Style="{StaticResource CaptionText}"
+                               Margin="0,0,0,6" />
+                    <Border Height="80" Background="{StaticResource BackgroundElevatedBrush}"
+                            CornerRadius="6" ClipToBounds="True">
+                        <ItemsControl ItemsSource="{Binding CpuHistory}" VerticalAlignment="Bottom">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Rectangle Width="5" Margin="1,0"
+                                               VerticalAlignment="Bottom"
+                                               Height="{Binding Converter={StaticResource PercentToHeight}}"
+                                               Fill="{StaticResource AccentPrimaryBrush}"
+                                               Opacity="0.8" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+
+                    <TextBlock Text="{Binding GpuNote}" Style="{StaticResource CaptionText}"
+                               Foreground="{StaticResource TextTertiaryBrush}"
+                               Margin="0,10,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!-- Before/After Capture -->
+            <Border Style="{StaticResource SaturnCard}" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="BEFORE / AFTER COMPARISON" Style="{StaticResource HeadingSmallText}"
+                               Opacity="0.5" Margin="0,0,0,16" />
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Button Content="Capture BEFORE Baseline"
+                                Style="{StaticResource SaturnGhostButton}"
+                                Command="{Binding CaptureBeforeBaselineCommand}"
+                                IsEnabled="{Binding IsCapturingBaseline, Converter={StaticResource InverseBool}}" />
+                        <Button Content="Generate Report" Margin="10,0,0,0"
+                                Style="{StaticResource SaturnPrimaryButton}"
+                                Command="{Binding GenerateReportCommand}"
+                                IsEnabled="{Binding IsCapturingBaseline, Converter={StaticResource InverseBool}}" />
+                        <Button Content="Export Report" Margin="10,0,0,0"
+                                Style="{StaticResource SaturnGhostButton}"
+                                Command="{Binding ExportReportCommand}"
+                                IsEnabled="{Binding HasReport}" />
+                    </StackPanel>
+
+                    <ProgressBar IsIndeterminate="True" Height="2" Margin="0,0,0,10"
+                                 Foreground="{StaticResource AccentPrimaryBrush}"
+                                 Visibility="{Binding IsCapturingBaseline, Converter={StaticResource BoolToVis}}" />
+
+                    <Border Background="{StaticResource BackgroundElevatedBrush}"
+                            CornerRadius="8" Padding="12,8" Margin="0,0,0,12">
+                        <TextBlock Text="{Binding BaselineStatus}"
+                                   Style="{StaticResource BodySecondaryText}" />
+                    </Border>
+
+                    <TextBlock Text="HOW TO USE:" Style="{StaticResource HeadingSmallText}"
+                               Opacity="0.5" Margin="0,0,0,8" />
+                    <TextBlock Style="{StaticResource BodySecondaryText}" TextWrapping="Wrap">
+                        1. Start monitoring.
+                        2. Click "Capture BEFORE Baseline" (captures 5 seconds of idle metrics).
+                        3. Apply your optimizations on the Performance page.
+                        4. Click "Generate Report" (captures 5 seconds of after metrics and produces the comparison).
+                        5. Export the report as text or JSON.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- Report Text -->
+            <Border Style="{StaticResource SaturnCard}"
+                    Visibility="{Binding HasReport, Converter={StaticResource BoolToVis}}">
+                <StackPanel>
+                    <TextBlock Text="OPTIMIZATION REPORT" Style="{StaticResource HeadingSmallText}"
+                               Opacity="0.5" Margin="0,0,0,12" />
+                    <Border Background="{StaticResource BackgroundDeepBrush}" CornerRadius="8"
+                            Padding="16" MaxHeight="400">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <TextBlock Text="{Binding ReportText}"
+                                       FontFamily="{StaticResource SaturnMonoFamily}"
+                                       FontSize="12"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       TextWrapping="Wrap" />
+                        </ScrollViewer>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

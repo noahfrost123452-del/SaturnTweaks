@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>SaturnTweaks.Core</AssemblyName>
+    <RootNamespace>SaturnTweaks.Core</RootNamespace>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+  <ItemGroup>
+    <!--
+      Core intentionally has minimal dependencies: only Logging.Abstractions for ILogger<T>
+      on the interfaces. System.Management and Newtonsoft.Json belong in Engine, not Core.
+      Engine uses System.Management for WMI and System.Text.Json (built-in) for serialisation.
+    -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+  </ItemGroup>
+</Project>
